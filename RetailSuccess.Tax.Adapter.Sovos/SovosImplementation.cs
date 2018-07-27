@@ -1,8 +1,13 @@
-﻿using System;
-using System.Threading.Tasks;
-using RetailSuccess.Sovos.Client;
+﻿using RetailSuccess.Sovos.Client;
+using RetailSuccess.Sovos.Client.Enums;
+using RetailSuccess.Tax.Abort;
 using RetailSuccess.Tax.Adapter.Sovos.PropertyMaps;
 using RetailSuccess.Tax.Adapter.Sovos.SetUp;
+using RetailSuccess.Tax.Commit;
+using RetailSuccess.Tax.Refund;
+using RetailSuccess.Tax.Update;
+using System;
+using System.Threading.Tasks;
 
 namespace RetailSuccess.Tax.Adapter.Sovos
 {
@@ -28,9 +33,18 @@ namespace RetailSuccess.Tax.Adapter.Sovos
         public async Task<TaxResponse> GetTaxQuote(TaxRequest taxInformation)
         {
             var taxRequest = TaxRelayMapper.CreateSovosTaxQuote(taxInformation, _sovosSettings);
-            var response = await _client.GetTaxDeterminationAsync(taxRequest);
-            var taxResponse = TaxRelayMapper.CreateTaxResponseFromSovos(response, taxInformation.SaleDate);
-            return taxResponse;
+            try
+            {
+                var response =
+                    await _client.GetTaxDeterminationAsync(taxRequest);
+                var taxResponse = TaxRelayMapper.CreateTaxResponseFromSovos(response, taxInformation.SaleDate);
+                return taxResponse;
+            }
+            catch (Exception ex)
+            {
+                var response = new TaxResponse();
+                return (TaxResponse)response.CreateErrorResponse(ex.Message);
+            }
         }
         /// <summary>
         /// Ensure the transactionId and source are provided. This may include the invoice number.
@@ -40,48 +54,96 @@ namespace RetailSuccess.Tax.Adapter.Sovos
         public async Task<TaxResponse> GetPendingTaxCalculation(TaxRequest taxInformation)
         {
             var taxRequest = TaxRelayMapper.CreateSovosTaxRequest(taxInformation, _sovosSettings);
-            var response = await _client.GetTaxDeterminationAsync(taxRequest);
-            var taxResponse = TaxRelayMapper.CreateTaxResponseFromSovos(response, taxInformation.SaleDate);
-            return taxResponse;
-        }
+            try { 
+                var response = 
+                    await _client.GetTaxDeterminationAsync(taxRequest);
+                var taxResponse = TaxRelayMapper.CreateTaxResponseFromSovos(response, taxInformation.SaleDate);
+                return taxResponse;
+            }
+            catch (Exception ex)
+            {
+                var response = new TaxResponse();
+                return (TaxResponse) response.CreateErrorResponse(ex.Message);
+            }
+}
         /// <summary>
         /// Commits a pending tax request for audit.  
         /// </summary>
-        public async Task<string> CommitPendingTaxCalculation(TaxCommitRequest commitRequest)
+        public async Task<TaxCommitResponse> CommitPendingTaxCalculation(TaxCommitRequest commitRequest)
         {
             var sovosCommitRequest = PendingTaxRelayMapper.CreateCommitRequest(commitRequest, _sovosSettings);
-            var sovosCommitResponse = await _client.CommitWithResponsePendingGTDAuditTransactionAsync(sovosCommitRequest);
-            return sovosCommitResponse.TransactionStateDescription;
+            try
+            {
+                var sovosCommitResponse =
+                    await _client.CommitWithResponsePendingGTDAuditTransactionAsync(sovosCommitRequest);
+                var commitResponse = PendingTaxRelayMapper.CreateCommitResponse(sovosCommitResponse, commitRequest.CommitDate);
+                return commitResponse;
+            }
+            catch (Exception ex)
+            {
+                var commitResponse = new TaxCommitResponse();
+                return (TaxCommitResponse)commitResponse.CreateErrorResponse(ex.Message);
+            }
         }
 
         /// <summary>
         /// Uses SovosId; Commits a pending tax request for audit.  
         /// </summary>
-        public async Task<string> CommitPendingTaxCalculationUsingSovosId(TaxCommitRequestWithSovosId commitRequest)
+        public async Task<TaxCommitResponse> CommitPendingTaxCalculationUsingSovosId(TaxCommitRequestWithTaxSystemId commitRequest)
         {
             var sovosCommitRequest = PendingTaxRelayMapper.CreateCommitRequestWithSovosId(commitRequest, _sovosSettings);
-            var sovosCommitResponse = await _client.CommitWithResponsePendingGTDAuditTransactionAsync(sovosCommitRequest);
-            return sovosCommitResponse.TransactionStateDescription;
+            try
+            {
+                var sovosCommitResponse =
+                    await _client.CommitWithResponsePendingGTDAuditTransactionAsync(sovosCommitRequest);
+                var commitResponse = PendingTaxRelayMapper.CreateCommitResponse(sovosCommitResponse);
+                return commitResponse;
+            }
+            catch (Exception ex)
+            {
+                var commitResponse = new TaxCommitResponse();
+                return (TaxCommitResponse)commitResponse.CreateErrorResponse(ex.Message);
+            }
         }
 
         /// <summary>
         /// Aborts a pending tax request, purging it.
         /// </summary>
-        public async Task<string> AbortPendingTaxCalculation(TaxAbortRequest abortRequest)
+        public async Task<TaxAbortResponse> AbortPendingTaxCalculation(TaxAbortRequest abortRequest)
         {
             var sovosAbortRequest = PendingTaxRelayMapper.CreateAbortRequest(abortRequest, _sovosSettings);
-            var sovosAbortResponse = await _client.AbortWithResponsePendingGTDAuditTransactionAsync(sovosAbortRequest);
-            return sovosAbortResponse.TransactionStateDescription;
+            try
+            {
+                var sovosAbortResponse =
+                    await _client.AbortWithResponsePendingGTDAuditTransactionAsync(sovosAbortRequest);
+                var abortResponse = PendingTaxRelayMapper.CreateAbortResponse(sovosAbortResponse);
+                return abortResponse;
+            }
+            catch (Exception ex)
+            {
+                var abortResponse = new TaxAbortResponse();
+                return (TaxAbortResponse) abortResponse.CreateErrorResponse(ex.Message);
+            }
         }
 
         /// <summary>
         /// Uses SovosId; Aborts a pending tax request, purging it.
         /// </summary>
-        public async Task<string> AbortPendingTaxCalculationUsingSovosId(TaxAbortRequestWithSovosId abortRequest)
+        public async Task<TaxAbortResponse> AbortPendingTaxCalculationUsingSovosId(TaxAbortRequestWithTaxSystemId abortRequest)
         {
             var sovosAbortRequest = PendingTaxRelayMapper.CreateAbortRequestWithSovosId(abortRequest, _sovosSettings);
-            var sovosAbortResponse = await _client.AbortWithResponsePendingGTDAuditTransactionAsync(sovosAbortRequest);
-            return sovosAbortResponse.TransactionStateDescription;
+            try
+            { 
+                var sovosAbortResponse = 
+                    await _client.AbortWithResponsePendingGTDAuditTransactionAsync(sovosAbortRequest);
+                var abortResponse = PendingTaxRelayMapper.CreateAbortResponse(sovosAbortResponse);
+                return abortResponse;
+            }
+            catch (Exception ex)
+            {
+                var abortResponse = new TaxAbortResponse();
+                return (TaxAbortResponse)abortResponse.CreateErrorResponse(ex.Message);
+            }
         }
 
         /// <summary>
@@ -91,13 +153,47 @@ namespace RetailSuccess.Tax.Adapter.Sovos
         /// </summary>
         /// <param name="updateRequest"></param>
         /// <returns></returns>
-        public async Task<TaxResponse> UpdatePendingTaxCalculation(TaxRequest updateRequest)
+        public async Task<TaxResponse> UpdatePendingTaxCalculation(TaxUpdatePendingTaxRequest updateRequest)
         {
-            var taxRequest = TaxRelayMapper.CreateSovosTaxRequest(updateRequest, _sovosSettings, true);
-            var response = await _client.GetTaxDeterminationAsync(taxRequest);
-            var taxResponse = TaxRelayMapper.CreateTaxResponseFromSovos(response, updateRequest.SaleDate);
-            return taxResponse;
+            var taxRequest = TaxRelayMapper.CreateSovosTaxRequest(updateRequest, _sovosSettings);
+            taxRequest.TransactionSource = "OVER_" + taxRequest.TransactionSource;
+            try
+            {
+                var response = 
+                    await _client.GetTaxDeterminationAsync(taxRequest);
+                var taxResponse = TaxRelayMapper.CreateTaxResponseFromSovos(response, updateRequest.SaleDate);
+                return taxResponse;
+            }
+            catch (Exception ex)
+            {
+                var response = new TaxResponse();
+                return (TaxResponse)response.CreateErrorResponse(ex.Message);
+            }
         }
 
+        public async Task<TaxRefundResponse> RefundRequest(TaxRefundRequest refundRequest)
+        {
+            var taxRequest = TaxRelayMapper.CreateSovosTaxRequest(refundRequest, _sovosSettings);
+            if (refundRequest.IsRefund)
+            {
+                foreach (var line in taxRequest.LineItems)
+                {
+                    line.DebitCreditIndicator = DebitCreditIndicator.Credit;
+                }
+            }
+
+            try
+            {
+                var response =
+                    await _client.GetTaxDeterminationAsync(taxRequest);
+                var taxResponse = TaxRelayMapper.CreateTaxRefundResponseFromSovos(response, refundRequest.SaleDate);
+                return taxResponse;
+            }
+            catch (Exception ex)
+            {
+                var response = new TaxResponse();
+                return (TaxRefundResponse)response.CreateErrorResponse(ex.Message);
+            }
+        }
     }
 }

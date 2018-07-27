@@ -8,8 +8,7 @@ namespace RetailSuccess.Tax.Adapter.Sovos.SetUp
         internal static SovosTaxClientOptions GetAppSettings()
         {
             var configBuilder = new ConfigurationBuilder();
-            configBuilder.AddJsonFile("appSettings.json")
-                .AddJsonFile("appSettings.Development.json");
+            configBuilder.AddJsonFile("appSettings.json");
             var config = configBuilder.Build();
             return config.Get<SovosTaxClientOptions>();
         }
