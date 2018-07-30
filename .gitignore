@@ -260,3 +260,4 @@ paket-files/
 __pycache__/
 *.pyc
 /RetailSuccess.Tax.Adapter.Sovos/AppSettings.json
+/SovosTestConsole/AppSettings.json

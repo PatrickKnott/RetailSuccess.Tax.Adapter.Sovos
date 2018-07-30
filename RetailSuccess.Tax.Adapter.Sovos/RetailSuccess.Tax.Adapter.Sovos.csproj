@@ -6,19 +6,13 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="2.1.1" />
-    <PackageReference Include="RetailSuccess.Sovos.Client" Version="1.0.0-beta01722" />
+    <PackageReference Include="RetailSuccess.Sovos.Client" Version="1.0.0-beta01766" />
   </ItemGroup>
 
   <ItemGroup>
     <Reference Include="RetailSuccess.Tax">
       <HintPath>..\..\RetailSuccess.Tax\RetailSuccess.Tax\bin\Release\netstandard2.0\RetailSuccess.Tax.dll</HintPath>
     </Reference>
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Update="AppSettings.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
 
 </Project>

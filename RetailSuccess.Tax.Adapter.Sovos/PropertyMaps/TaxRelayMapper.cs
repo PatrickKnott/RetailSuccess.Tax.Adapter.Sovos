@@ -74,7 +74,7 @@ namespace RetailSuccess.Tax.Adapter.Sovos.PropertyMaps
                 sovosLineItems.Add(sovosLineItem);
             }
 
-            return new SovosTaxCalcRequest()
+            var request = new SovosTaxCalcRequest()
             {
                 UserName = userInfo.User,
                 Password = userInfo.Password,
@@ -85,7 +85,8 @@ namespace RetailSuccess.Tax.Adapter.Sovos.PropertyMaps
 
                 LineItems = sovosLineItems
             };
-            
+            return request;
+
         }
 
         /// <summary>
@@ -155,7 +156,7 @@ namespace RetailSuccess.Tax.Adapter.Sovos.PropertyMaps
                 Password = userInfo.Password,
                 TransactionId = taxInformation.OrderNumber, 
                 TransactionSource = taxInformation.TransactionSource,
-                //TransactionDocumentMessagingRequired = true,  //TODO defaults to false, per docs true? do I need this? I see no value.
+                //TransactionDocumentMessagingRequired = true,  //TODO defaults to false, per docs true? do I need this? What does this do?
                 TransactionDocumentNumber = taxInformation.InvoiceNumber, 
                 DocumentDate = taxInformation.SaleDate,
                 CurrencyCode = "USD",
@@ -180,7 +181,7 @@ namespace RetailSuccess.Tax.Adapter.Sovos.PropertyMaps
                 {
                     GrossAmount = lineResult.GrossAmount,
                     LineItemTax = lineResult.TotalTaxAmount,
-                    OrderItemId = lineResult.LineId.ToString(), 
+                    OrderItemId = lineResult.LineId 
                 };
                 lineItems.Add(lineResponse);
             }
@@ -210,7 +211,7 @@ namespace RetailSuccess.Tax.Adapter.Sovos.PropertyMaps
                 {
                     GrossAmount = lineResult.GrossAmount,
                     LineItemTax = lineResult.TotalTaxAmount,
-                    OrderItemId = lineResult.LineId.ToString(),
+                    OrderItemId = lineResult.LineId
                 };
                 lineItems.Add(lineResponse);
             }

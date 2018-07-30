@@ -1,16 +1,18 @@
 ﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using RetailSuccess.Sovos.Client;
 
 namespace RetailSuccess.Tax.Adapter.Sovos.SetUp
 {
-    internal static class ConfigurationReader
+    public static class DependencyInjectionExtensions
     {
-        internal static SovosTaxClientOptions GetAppSettings()
+        public static IServiceCollection AddSovosTaxAdapter(this IServiceCollection services, IConfiguration config)
         {
-            var configBuilder = new ConfigurationBuilder();
-            configBuilder.AddJsonFile("appSettings.json");
-            var config = configBuilder.Build();
-            return config.Get<SovosTaxClientOptions>();
+            return services.Configure<SovosTaxClientOptions>(config.GetSection("SovosTaxClientOptions"))
+                .AddSingleton(serviceProvider =>
+                    serviceProvider.GetRequiredService<IOptions<SovosTaxClientOptions>>().Value)
+                .AddTransient<ITaxHandler, SovosImplementation>();
         }
     }
 }

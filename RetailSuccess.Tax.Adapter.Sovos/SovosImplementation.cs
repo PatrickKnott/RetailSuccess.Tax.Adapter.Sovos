@@ -6,7 +6,6 @@ using RetailSuccess.Tax.Adapter.Sovos.SetUp;
 using RetailSuccess.Tax.Commit;
 using RetailSuccess.Tax.Refund;
 using RetailSuccess.Tax.Update;
-using System;
 using System.Threading.Tasks;
 
 namespace RetailSuccess.Tax.Adapter.Sovos
@@ -17,9 +16,9 @@ namespace RetailSuccess.Tax.Adapter.Sovos
         private ClientFactory _factory;
         private SovosTaxClient _client;
 
-        public SovosImplementation()
+        public SovosImplementation(SovosTaxClientOptions sovosSettings)
         {
-            _sovosSettings = ConfigurationReader.GetAppSettings();
+            _sovosSettings = sovosSettings;
             _factory = new ClientFactory(_sovosSettings);
             _client = _factory.CreateClient();
         }
@@ -40,10 +39,10 @@ namespace RetailSuccess.Tax.Adapter.Sovos
                 var taxResponse = TaxRelayMapper.CreateTaxResponseFromSovos(response, taxInformation.SaleDate);
                 return taxResponse;
             }
-            catch (Exception ex)
+            catch (Refit.ApiException ex)
             {
                 var response = new TaxResponse();
-                return (TaxResponse)response.CreateErrorResponse(ex.Message);
+                return (TaxResponse)response.CreateErrorResponse(ex.Content);
             }
         }
         /// <summary>
@@ -60,10 +59,10 @@ namespace RetailSuccess.Tax.Adapter.Sovos
                 var taxResponse = TaxRelayMapper.CreateTaxResponseFromSovos(response, taxInformation.SaleDate);
                 return taxResponse;
             }
-            catch (Exception ex)
+            catch (Refit.ApiException ex)
             {
                 var response = new TaxResponse();
-                return (TaxResponse) response.CreateErrorResponse(ex.Message);
+                return (TaxResponse) response.CreateErrorResponse(ex.Content);
             }
 }
         /// <summary>
@@ -79,10 +78,10 @@ namespace RetailSuccess.Tax.Adapter.Sovos
                 var commitResponse = PendingTaxRelayMapper.CreateCommitResponse(sovosCommitResponse, commitRequest.CommitDate);
                 return commitResponse;
             }
-            catch (Exception ex)
+            catch (Refit.ApiException ex)
             {
                 var commitResponse = new TaxCommitResponse();
-                return (TaxCommitResponse)commitResponse.CreateErrorResponse(ex.Message);
+                return (TaxCommitResponse)commitResponse.CreateErrorResponse(ex.Content);
             }
         }
 
@@ -99,10 +98,10 @@ namespace RetailSuccess.Tax.Adapter.Sovos
                 var commitResponse = PendingTaxRelayMapper.CreateCommitResponse(sovosCommitResponse);
                 return commitResponse;
             }
-            catch (Exception ex)
+            catch (Refit.ApiException ex)
             {
                 var commitResponse = new TaxCommitResponse();
-                return (TaxCommitResponse)commitResponse.CreateErrorResponse(ex.Message);
+                return (TaxCommitResponse)commitResponse.CreateErrorResponse(ex.Content);
             }
         }
 
@@ -119,10 +118,10 @@ namespace RetailSuccess.Tax.Adapter.Sovos
                 var abortResponse = PendingTaxRelayMapper.CreateAbortResponse(sovosAbortResponse);
                 return abortResponse;
             }
-            catch (Exception ex)
+            catch (Refit.ApiException ex)
             {
                 var abortResponse = new TaxAbortResponse();
-                return (TaxAbortResponse) abortResponse.CreateErrorResponse(ex.Message);
+                return (TaxAbortResponse) abortResponse.CreateErrorResponse(ex.Content);
             }
         }
 
@@ -139,17 +138,18 @@ namespace RetailSuccess.Tax.Adapter.Sovos
                 var abortResponse = PendingTaxRelayMapper.CreateAbortResponse(sovosAbortResponse);
                 return abortResponse;
             }
-            catch (Exception ex)
+            catch (Refit.ApiException ex)
             {
                 var abortResponse = new TaxAbortResponse();
-                return (TaxAbortResponse)abortResponse.CreateErrorResponse(ex.Message);
+                return (TaxAbortResponse)abortResponse.CreateErrorResponse(ex.Content);
             }
         }
 
         /// <summary>
         /// Updates a pending tax request; does not commit/abort it.
-        /// Requires TransactionId and Transaction Source.
-        /// Aborts the existing request by TransactionId, then submits a new request with the provided information.
+        /// Requires TransactionId, Transaction Source AND Invoice Number.
+        /// Aborts the existing request by TransactionId, then submits a new request with the provided information, providing
+        /// a new transactionId.
         /// </summary>
         /// <param name="updateRequest"></param>
         /// <returns></returns>
@@ -164,10 +164,10 @@ namespace RetailSuccess.Tax.Adapter.Sovos
                 var taxResponse = TaxRelayMapper.CreateTaxResponseFromSovos(response, updateRequest.SaleDate);
                 return taxResponse;
             }
-            catch (Exception ex)
+            catch (Refit.ApiException ex)
             {
                 var response = new TaxResponse();
-                return (TaxResponse)response.CreateErrorResponse(ex.Message);
+                return (TaxResponse)response.CreateErrorResponse(ex.Content);
             }
         }
 
@@ -189,10 +189,10 @@ namespace RetailSuccess.Tax.Adapter.Sovos
                 var taxResponse = TaxRelayMapper.CreateTaxRefundResponseFromSovos(response, refundRequest.SaleDate);
                 return taxResponse;
             }
-            catch (Exception ex)
+            catch (Refit.ApiException ex)
             {
                 var response = new TaxResponse();
-                return (TaxRefundResponse)response.CreateErrorResponse(ex.Message);
+                return (TaxRefundResponse)response.CreateErrorResponse(ex.Content);
             }
         }
     }
