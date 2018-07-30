@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using RetailSuccess.Tax.Adapter.Sovos.SetUp;
 using RetailSuccess.Tax.Models;
 using RetailSuccess.Tax.Refund;
 using RetailSuccess.Tax.Update;
@@ -11,9 +13,12 @@ namespace RetailSuccess.Tax.Adapter.Sovos.Tests
     {
         public static ITaxHandler GetTaxHandler()
         {
-            var serviceCollection = new ServiceCollection();
-            serviceCollection.AddTransient<ITaxHandler>(x => new SovosImplementation());
-            var container = serviceCollection.BuildServiceProvider();
+            var configBuilder = new ConfigurationBuilder();
+            configBuilder.AddJsonFile("appSettings.json");
+            var config = configBuilder.Build();
+            var services = new ServiceCollection();
+            services.AddSovosTaxAdapter(config);
+            var container = services.BuildServiceProvider();
             var taxHandler = container.GetService<ITaxHandler>();
             return taxHandler;
         }

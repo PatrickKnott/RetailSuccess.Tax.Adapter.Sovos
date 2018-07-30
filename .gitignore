@@ -261,3 +261,4 @@ __pycache__/
 *.pyc
 /RetailSuccess.Tax.Adapter.Sovos/AppSettings.json
 /SovosTestConsole/AppSettings.json
+/RetailSuccess.Tax.Adapter.Sovos.Tests/AppSettings.json
